@@ -168,6 +168,116 @@ if (carousel) {
   showProject(0, false);
 }
 
+const architectureExplorer = document.querySelector(
+  "[data-architecture-explorer]",
+);
+
+if (architectureExplorer) {
+  const tabList = architectureExplorer.querySelector('[role="tablist"]');
+  const tabs = [
+    ...architectureExplorer.querySelectorAll("[data-architecture-tab]"),
+  ];
+  const panels = [
+    ...architectureExplorer.querySelectorAll("[data-architecture-panel]"),
+  ];
+  const cycleDelay = 6500;
+
+  let currentIndex = 0;
+  let cycleTimer;
+  let autoplay = !reducedMotion;
+
+  const stopAutoplay = () => {
+    autoplay = false;
+    window.clearTimeout(cycleTimer);
+    architectureExplorer.classList.remove("is-autoplaying");
+  };
+
+  const scheduleAutoplay = () => {
+    window.clearTimeout(cycleTimer);
+
+    if (!autoplay || document.hidden) {
+      architectureExplorer.classList.remove("is-autoplaying");
+      return;
+    }
+
+    architectureExplorer.classList.remove("is-autoplaying");
+    requestAnimationFrame(() => {
+      architectureExplorer.classList.add("is-autoplaying");
+    });
+
+    cycleTimer = window.setTimeout(() => {
+      showStage(currentIndex + 1);
+    }, cycleDelay);
+  };
+
+  const keepTabVisible = (tab) => {
+    const targetLeft =
+      tab.offsetLeft - (tabList.clientWidth - tab.offsetWidth) / 2;
+
+    tabList.scrollTo({
+      left: Math.max(0, targetLeft),
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
+  };
+
+  function showStage(index, { focus = false, manual = false } = {}) {
+    currentIndex = (index + tabs.length) % tabs.length;
+
+    if (manual) stopAutoplay();
+
+    tabs.forEach((tab, tabIndex) => {
+      const isActive = tabIndex === currentIndex;
+      tab.setAttribute("aria-selected", String(isActive));
+      tab.tabIndex = isActive ? 0 : -1;
+    });
+
+    panels.forEach((panel, panelIndex) => {
+      panel.hidden = panelIndex !== currentIndex;
+    });
+
+    keepTabVisible(tabs[currentIndex]);
+
+    if (focus) tabs[currentIndex].focus();
+    if (autoplay) scheduleAutoplay();
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => {
+      showStage(index, { manual: true });
+    });
+  });
+
+  tabList.addEventListener("keydown", (event) => {
+    const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+    if (!keys.includes(event.key)) return;
+
+    event.preventDefault();
+
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowLeft") nextIndex -= 1;
+    if (event.key === "ArrowRight") nextIndex += 1;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = tabs.length - 1;
+
+    showStage(nextIndex, { focus: true, manual: true });
+  });
+
+  architectureExplorer.addEventListener("focusin", stopAutoplay, {
+    once: true,
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      window.clearTimeout(cycleTimer);
+      architectureExplorer.classList.remove("is-autoplaying");
+    } else if (autoplay) {
+      scheduleAutoplay();
+    }
+  });
+
+  showStage(0);
+}
+
 document.querySelector(".back-to-top")?.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
 });

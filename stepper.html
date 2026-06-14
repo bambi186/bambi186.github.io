@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A distilled technical case study of Stepper, a frame-accurate Unreal Engine platform for automated broadcast rendering."
+    />
+    <meta name="theme-color" content="#0b0d0c" />
+    <title>Stepper Case Study | Nimrod Levy</title>
+    <link rel="stylesheet" href="styles.css?v=20260614-4" />
+    <link rel="stylesheet" href="stepper.css?v=20260614-1" />
+    <script src="script.js" defer></script>
+  </head>
+  <body class="stepper-page">
+    <div class="noise" aria-hidden="true"></div>
+
+    <header class="site-header case-header">
+      <a class="brand" href="index.html" aria-label="Nimrod Levy portfolio">
+        <span class="brand-mark">NL</span>
+        <span class="brand-status"><i></i> Stepper case study</span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Case study navigation">
+        <a href="#architecture">Architecture</a>
+        <a href="#pipelines">Pipelines</a>
+        <a href="#extension">Extension</a>
+      </nav>
+
+      <a class="contact-link" href="index.html#experience">
+        Back to portfolio
+        <span aria-hidden="true">←</span>
+      </a>
+    </header>
+
+    <main id="top">
+      <section class="case-hero section-shell">
+        <div class="case-hero-copy">
+          <div class="case-eyebrow reveal">
+            <span>Gamechanger</span>
+            <span class="eyebrow-line"></span>
+            <span>2018 — 2024</span>
+          </div>
+
+          <h1 class="reveal">
+            Frame-accurate
+            <span>broadcast rendering,</span>
+            built inside <em>Unreal.</em>
+          </h1>
+
+          <div class="case-intro reveal">
+            <p>
+              Stepper turned chronological production logs into deterministic
+              scenes, camera passes, edit timelines, and external jobs. I
+              solely architected and built the platform for automated
+              television production.
+            </p>
+            <dl class="case-facts">
+              <div>
+                <dt>Role</dt>
+                <dd>System architect and sole developer</dd>
+              </div>
+              <div>
+                <dt>Stack</dt>
+                <dd>Unreal Engine, C++, Blueprints, FFmpeg</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        <div class="case-metrics reveal" aria-label="Stepper system metrics">
+          <div>
+            <strong>4</strong>
+            <span>render<br />pipelines</span>
+          </div>
+          <div>
+            <strong>14</strong>
+            <span>Blueprint<br />API groups</span>
+          </div>
+          <div>
+            <strong>100+</strong>
+            <span>documented<br />C++ types</span>
+          </div>
+        </div>
+
+        <figure class="hero-visual reveal">
+          <figcaption>
+            <span>01 / Job Planner</span>
+            Operators select logs and camera pipelines from one production
+            queue.
+          </figcaption>
+          <div class="visual-frame">
+            <img
+              src="assets/stepper/job-planner.webp"
+              width="1280"
+              height="724"
+              alt="Stepper Job Planner showing production logs and Normal, Scatter, XML, and External camera actions"
+            />
+          </div>
+        </figure>
+      </section>
+
+      <section class="case-section architecture-section" id="architecture">
+        <div class="section-shell">
+          <div class="case-heading reveal">
+            <div>
+              <span class="section-index">01</span>
+              <p>Architecture</p>
+            </div>
+            <h2>The game records what happened. Stepper rebuilds it.</h2>
+            <p class="case-heading-copy">
+              During the show, the game software writes timestamped events to
+              a chronological log. Stepper ingests that log and replays those
+              events on their original frames to create production output.
+            </p>
+          </div>
+
+          <div class="architecture-explorer reveal" data-architecture-explorer>
+            <div
+              class="architecture-tabs"
+              role="tablist"
+              aria-label="Explore the Stepper data flow"
+            >
+              <button
+                class="architecture-tab"
+                id="architecture-tab-source"
+                type="button"
+                role="tab"
+                aria-label="Source: Game software"
+                aria-selected="true"
+                aria-controls="architecture-panel-source"
+                data-architecture-tab
+              >
+                <span>01 / Source</span>
+                <strong>Game software</strong>
+                <small>Records production-relevant events as the show runs</small>
+                <i aria-hidden="true"></i>
+              </button>
+              <button
+                class="architecture-tab"
+                id="architecture-tab-log"
+                type="button"
+                role="tab"
+                aria-label="Record: Production log"
+                aria-selected="false"
+                aria-controls="architecture-panel-log"
+                tabindex="-1"
+                data-architecture-tab
+              >
+                <span>02 / Record</span>
+                <strong>Production log</strong>
+                <small>Stores timecodes, event names, and JSON data</small>
+                <i aria-hidden="true"></i>
+              </button>
+              <button
+                class="architecture-tab"
+                id="architecture-tab-packet"
+                type="button"
+                role="tab"
+                aria-label="Ingest: LogPacket"
+                aria-selected="false"
+                aria-controls="architecture-panel-packet"
+                tabindex="-1"
+                data-architecture-tab
+              >
+                <span>03 / Ingest</span>
+                <strong>LogPacket</strong>
+                <small>Structures the episode as a replayable data model</small>
+                <i aria-hidden="true"></i>
+              </button>
+              <button
+                class="architecture-tab"
+                id="architecture-tab-replay"
+                type="button"
+                role="tab"
+                aria-label="Replay: Frame stepping"
+                aria-selected="false"
+                aria-controls="architecture-panel-replay"
+                tabindex="-1"
+                data-architecture-tab
+              >
+                <span>04 / Replay</span>
+                <strong>Frame stepping</strong>
+                <small>Rebuilds scene state on the exact original frames</small>
+                <i aria-hidden="true"></i>
+              </button>
+              <button
+                class="architecture-tab"
+                id="architecture-tab-output"
+                type="button"
+                role="tab"
+                aria-label="Deliver: Production output"
+                aria-selected="false"
+                aria-controls="architecture-panel-output"
+                tabindex="-1"
+                data-architecture-tab
+              >
+                <span>05 / Deliver</span>
+                <strong>Production output</strong>
+                <small>Creates renders, pickup shots, XML, or external jobs</small>
+                <i aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="architecture-panels">
+              <article
+                class="architecture-panel"
+                id="architecture-panel-source"
+                role="tabpanel"
+                aria-labelledby="architecture-tab-source"
+                tabindex="0"
+                data-architecture-panel
+              >
+                <div class="architecture-panel-copy">
+                  <span class="card-index">01 / GAME SOFTWARE</span>
+                  <h3>The game records the moments production will need.</h3>
+                  <p>
+                    The live game already knows every answer, score change, and
+                    graphic trigger. It writes only the relevant events, with
+                    enough context for Stepper to reproduce them later.
+                  </p>
+                </div>
+                <div class="architecture-panel-example">
+                  <span class="example-label">LIVE GAME EVENT</span>
+                  <strong>SelectAnswer</strong>
+                  <dl class="event-example">
+                    <div>
+                      <dt>Timecode</dt>
+                      <dd>00:09:00:00</dd>
+                    </div>
+                    <div>
+                      <dt>Event</dt>
+                      <dd>SelectAnswer</dd>
+                    </div>
+                    <div>
+                      <dt>JSON data</dt>
+                      <dd>{ "SelectedAnswerId": 1 }</dd>
+                    </div>
+                  </dl>
+                </div>
+              </article>
+
+              <article
+                class="architecture-panel"
+                id="architecture-panel-log"
+                role="tabpanel"
+                aria-labelledby="architecture-tab-log"
+                tabindex="0"
+                data-architecture-panel
+                hidden
+              >
+                <div class="architecture-panel-copy">
+                  <span class="card-index">02 / PRODUCTION LOG</span>
+                  <h3>A chronological account of the episode.</h3>
+                  <p>
+                    Each relevant event becomes a timestamped log entry. The
+                    resulting file is a portable record of what happened,
+                    independent of real-time playback or rendering.
+                  </p>
+                </div>
+                <div class="architecture-panel-example log-example">
+                  <span class="example-label">EPISODE_042.LOG</span>
+                  <ol>
+                    <li>
+                      <time>00:08:58:12</time>
+                      <strong>OpenQuestion</strong>
+                    </li>
+                    <li class="is-current">
+                      <time>00:09:00:00</time>
+                      <strong>SelectAnswer</strong>
+                    </li>
+                    <li>
+                      <time>00:09:03:08</time>
+                      <strong>RevealResult</strong>
+                    </li>
+                    <li>
+                      <time>00:09:05:21</time>
+                      <strong>UpdateScore</strong>
+                    </li>
+                  </ol>
+                </div>
+              </article>
+
+              <article
+                class="architecture-panel"
+                id="architecture-panel-packet"
+                role="tabpanel"
+                aria-labelledby="architecture-tab-packet"
+                tabindex="0"
+                data-architecture-panel
+                hidden
+              >
+                <div class="architecture-panel-copy">
+                  <span class="card-index">03 / LOGPACKET</span>
+                  <h3>The episode, structured for deterministic replay.</h3>
+                  <p>
+                    Stepper parses the log into a JSON-backed container of
+                    relevant events and their data, ordered by timecode and
+                    paired with the production metadata needed to render.
+                  </p>
+                </div>
+                <dl class="packet-model">
+                  <div>
+                    <dt>When</dt>
+                    <dd>The exact frame each event occurred</dd>
+                  </div>
+                  <div>
+                    <dt>What</dt>
+                    <dd>The named event to send into the scene</dd>
+                  </div>
+                  <div>
+                    <dt>Data</dt>
+                    <dd>The JSON values actors and graphics consume</dd>
+                  </div>
+                  <div>
+                    <dt>Context</dt>
+                    <dd>Episode, frame rate, cameras, and output settings</dd>
+                  </div>
+                </dl>
+              </article>
+
+              <article
+                class="architecture-panel"
+                id="architecture-panel-replay"
+                role="tabpanel"
+                aria-labelledby="architecture-tab-replay"
+                tabindex="0"
+                data-architecture-panel
+                hidden
+              >
+                <div class="architecture-panel-copy">
+                  <span class="card-index">04 / FRAME STEPPING</span>
+                  <h3>The scene is rebuilt one exact frame at a time.</h3>
+                  <p>
+                    Before every output frame, Stepper advances the production
+                    clock, dispatches due events, updates the scene, and only
+                    then captures the result.
+                  </p>
+                </div>
+                <ol class="frame-cycle">
+                  <li><span>01</span><strong>Advance timecode</strong></li>
+                  <li><span>02</span><strong>Dispatch due events</strong></li>
+                  <li><span>03</span><strong>Update scene systems</strong></li>
+                  <li><span>04</span><strong>Capture the frame</strong></li>
+                </ol>
+              </article>
+
+              <article
+                class="architecture-panel"
+                id="architecture-panel-output"
+                role="tabpanel"
+                aria-labelledby="architecture-tab-output"
+                tabindex="0"
+                data-architecture-panel
+                hidden
+              >
+                <div class="architecture-panel-copy">
+                  <span class="card-index">05 / PRODUCTION OUTPUT</span>
+                  <h3>One replay model feeds four delivery paths.</h3>
+                  <p>
+                    The output changes, but the source of truth does not. Each
+                    pipeline uses the same ordered episode data and
+                    deterministic scene state.
+                  </p>
+                </div>
+                <ul class="output-paths">
+                  <li><span>Normal</span><strong>Full camera passes</strong></li>
+                  <li><span>Scattered</span><strong>Targeted pickup shots</strong></li>
+                  <li><span>XML</span><strong>Structured edit timelines</strong></li>
+                  <li><span>External</span><strong>Supervised process jobs</strong></li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="case-section pipelines-section" id="pipelines">
+        <div class="section-shell">
+          <div class="case-heading case-heading-light reveal">
+            <div>
+              <span class="section-index">02</span>
+              <p>Render pipelines</p>
+            </div>
+            <h2>One job model, four kinds of output.</h2>
+            <p class="case-heading-copy">
+              Camera type selects an orchestration strategy while the same
+              parsed production data continues to drive scene state.
+            </p>
+          </div>
+
+          <div class="pipeline-grid">
+            <article class="pipeline-card reveal">
+              <div class="pipeline-topline">
+                <span>01</span>
+              </div>
+              <h3>Normal</h3>
+              <p>
+                Replays a complete LogPacket from its first frame to its last,
+                updating actors, widgets, cameras, media, and encoding on every
+                step.
+              </p>
+              <strong>Full episode or continuous camera pass</strong>
+            </article>
+
+            <article class="pipeline-card reveal">
+              <div class="pipeline-topline">
+                <span>02</span>
+              </div>
+              <h3>Scattered</h3>
+              <p>
+                Scans for configured action tags, fast-forwards prior state
+                immediately, then renders only the required window around each
+                event.
+              </p>
+              <strong>Targeted pickup shots at exact show moments</strong>
+            </article>
+
+            <article class="pipeline-card reveal">
+              <div class="pipeline-topline">
+                <span>03</span>
+              </div>
+              <h3>XML</h3>
+              <p>
+                Builds FCPXML projects with bins, sequences, synchronized media,
+                transitions, loops, and keyframed effects for editorial
+                workflows.
+              </p>
+              <strong>Structured timelines ready for Premiere</strong>
+            </article>
+
+            <article class="pipeline-card reveal">
+              <div class="pipeline-topline">
+                <span>04</span>
+              </div>
+              <h3>External</h3>
+              <p>
+                Launches and monitors external processes, streams their output,
+                captures exit codes, and folds completion back into the Stepper
+                job lifecycle.
+              </p>
+              <strong>Automation beyond the Unreal process</strong>
+            </article>
+          </div>
+
+          <figure class="wide-technical-visual reveal">
+            <figcaption>
+              Scatter cameras declare which action starts a clip, its duration,
+              and its time offset.
+            </figcaption>
+            <img
+              src="assets/stepper/scatter-configuration.webp"
+              width="1256"
+              height="328"
+              loading="lazy"
+              alt="Blueprint configuration selecting an action tag, duration, and offset for a scattered camera render"
+            />
+          </figure>
+        </div>
+      </section>
+
+      <section class="case-section extension-section" id="extension">
+        <div class="section-shell">
+          <div class="case-heading reveal">
+            <div>
+              <span class="section-index">03</span>
+              <p>Extension layer</p>
+            </div>
+            <h2>Production logic stays accessible to both C++ and Blueprint.</h2>
+            <p class="case-heading-copy">
+              The core owns timing and orchestration. Project teams extend
+              behavior through focused Unreal classes and overridable APIs.
+            </p>
+          </div>
+
+          <div class="extension-grid">
+            <article class="extension-card reveal">
+              <span>Actors</span>
+              <h3>Frame-driven scene behavior</h3>
+              <p>
+                StepperActor parses selected action types into active actions,
+                then receives per-frame progress for deterministic animation.
+              </p>
+            </article>
+            <article class="extension-card reveal">
+              <span>Widgets</span>
+              <h3>Timed graphics and animation</h3>
+              <p>
+                StepperWidget synchronizes UMG animation updates and event
+                callbacks with the same stepping clock as the scene.
+              </p>
+            </article>
+            <article class="extension-card reveal">
+              <span>Components</span>
+              <h3>Reusable ordered updates</h3>
+              <p>
+                StepperActorComponent packages reusable behavior with explicit
+                init, reset, and pre- or post-actor frame update phases.
+              </p>
+            </article>
+            <article class="extension-card reveal">
+              <span>Media</span>
+              <h3>Frame-by-frame playback</h3>
+              <p>
+                Media processes advance source files by frame rather than
+                relying on real-time playback synchronization.
+              </p>
+            </article>
+            <article class="extension-card reveal">
+              <span>Blueprint</span>
+              <h3>14 documented API groups</h3>
+              <p>
+                APIs cover stepping, logs, tags, math, file IO, JSON, external
+                processes, scatter rendering, widgets, and XML construction.
+              </p>
+            </article>
+            <article class="extension-card reveal">
+              <span>C++</span>
+              <h3>100+ documented types</h3>
+              <p>
+                Managers, data structures, workers, editor-facing objects, and
+                runtime helpers expose the platform below the Blueprint layer.
+              </p>
+            </article>
+          </div>
+
+          <figure class="wide-technical-visual action-visual reveal">
+            <figcaption>
+              A project Blueprint reads JSON from a logged event and drives a
+              frame-synchronized widget animation.
+            </figcaption>
+            <img
+              src="assets/stepper/blueprint-extension.webp"
+              width="1342"
+              height="404"
+              loading="lazy"
+              alt="Blueprint graph reading question text from logged JSON and playing a synchronized Stepper widget animation"
+            />
+          </figure>
+        </div>
+      </section>
+
+      <section class="case-section outcomes-section" id="outcomes">
+        <div class="section-shell">
+          <div class="case-heading case-heading-light reveal">
+            <div>
+              <span class="section-index">04</span>
+              <p>Production outcomes</p>
+            </div>
+            <h2>Built for repeatable output, not real-time playback.</h2>
+            <p class="case-heading-copy">
+              Stepping decouples production time from wall-clock time. Complex
+              scenes can render as slowly as needed while every action,
+              animation, camera, and media frame remains aligned.
+            </p>
+          </div>
+
+          <div class="outcome-grid">
+            <div class="outcome-copy">
+              <div class="performance-card reveal">
+                <span>Integrated encoding</span>
+                <strong>90+ FPS</strong>
+                <p>
+                  Sustained at 4K in the offline FFmpeg pipeline, while the
+                  engine remained responsible for deterministic frame
+                  generation.
+                </p>
+              </div>
+
+              <div class="production-list reveal">
+                <p class="panel-label">Selected production use</p>
+                <a
+                  href="https://www.armozaformats.com/formats/game_shows/beat_the_grid"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>Beat The Grid</span>
+                  <small>2020 · Unreleased</small>
+                  <i aria-hidden="true">↗</i>
+                </a>
+                <a
+                  href="https://www.formatbiz.it/dettNews.aspx?id=9188"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>Family Piggy Bank</span>
+                  <small>2021 · Aired</small>
+                  <i aria-hidden="true">↗</i>
+                </a>
+                <a
+                  href="https://www.linkedin.com/posts/playtika_bingo-blitz-game-show-playtika-activity-7086698917567852544-J4Rb"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>Bingo Blitz</span>
+                  <small>2022 · Aired</small>
+                  <i aria-hidden="true">↗</i>
+                </a>
+                <a
+                  href="https://www.gameshownetwork.com/tic-tac-dough"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>Tic Tac Dough</span>
+                  <small>2024 · Aired</small>
+                  <i aria-hidden="true">↗</i>
+                </a>
+              </div>
+            </div>
+
+            <figure class="premiere-visual reveal">
+              <figcaption>
+                <span>04 / Editorial handoff</span>
+                Generated XML builds the project hierarchy and places timed
+                clips and transitions directly on the edit timeline.
+              </figcaption>
+              <div class="xml-output-stack">
+                <div class="xml-output-panel">
+                  <span>Generated project structure</span>
+                  <img
+                    src="assets/stepper/xml-project-structure.webp"
+                    width="546"
+                    height="236"
+                    loading="lazy"
+                    alt="Premiere project panel with generated media folders, source file, nested timeline, and main timeline"
+                  />
+                </div>
+                <div class="xml-output-panel">
+                  <span>Generated timeline</span>
+                  <img
+                    src="assets/stepper/xml-timeline.webp"
+                    width="457"
+                    height="148"
+                    loading="lazy"
+                    alt="Premiere timeline containing generated nested clips, a source clip, and a cross dissolve"
+                  />
+                </div>
+              </div>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="contact case-contact section-shell">
+        <span class="contact-kicker reveal">Need a system like this?</span>
+        <a class="contact-cta reveal" href="mailto:bambi186@gmail.com">
+          <span>Let’s solve</span>
+          <span>the hard part.</span>
+          <i aria-hidden="true">↗</i>
+        </a>
+
+        <footer>
+          <div>
+            <strong>Nimrod Levy</strong>
+            <span>Unreal Engine Developer</span>
+          </div>
+          <div class="footer-links">
+            <a href="index.html">Portfolio ←</a>
+            <a
+              href="https://www.linkedin.com/in/nimrod-levy"
+              target="_blank"
+              rel="noreferrer"
+            >LinkedIn ↗</a>
+            <a href="mailto:bambi186@gmail.com">Email ↗</a>
+          </div>
+          <button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>
